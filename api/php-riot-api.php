@@ -47,9 +47,10 @@ class Riotapi
     const API_URL_STATIC_CHAMPIONS = 'https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/champion?champData=image';
     const API_URL_STATIC_CHAMPIONS_TAGS = 'https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/champion?champData=tags';
     const API_URL_STATIC_MAPS = 'https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/map?';
-    const API_URL_STATIC_SPELLS = 'https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/summoner-spell?spellData=image';
-
-
+    const API_URL_STATIC_SPELLS = 'https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/summoner-spell?spellData=all';
+    const API_URL_STATIC_ITEMS = 'https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/item?itemListData=image,sanitizedDescription';
+    const API_URL_STATIC_MASTERIES = 'https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/mastery?masteryListData=all';
+    
 
     const API_KEY = 'b47507e5-3e3b-440f-b442-6c587f02fb14'; //b47507e5-3e3b-440f-b442-6c587f02fb14
 
@@ -142,7 +143,23 @@ class Riotapi
         $call  = self::API_URL_STATIC_MAPS;
 
         return $this->request($call, true);
-    }    
+    } 
+    
+    // Returns all maps.
+    public function getAllItems()
+    {        
+        $call  = self::API_URL_STATIC_ITEMS;
+
+        return $this->request($call, true);
+    } 
+    
+    // Returns all masteries.
+    public function getAllMasteries()
+    {        
+        $call  = self::API_URL_STATIC_MASTERIES;
+
+        return $this->request($call, true);
+    } 
 
     //gets current game information for player on platform (region?)
     //platform seems to be just uppercase region and 1 afterwards right now.
