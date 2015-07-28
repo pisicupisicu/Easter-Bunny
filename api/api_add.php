@@ -11,13 +11,22 @@
     $test = new Riotapi('eune');
         
     // addChampions($test, $oMySQL);
-    // displayChampions($test, $oMySQL);
-    // getChampionsImages($test, $oMySQL);
     // addChampionsTags($test, $oMySQL);
     // addMaps($test, $oMySQL);
     // addSpells($test, $oMySQL);
     // addItems($test, $oMySQL);
     // addMasteries($test, $oMySQL);
+    // addRunes($test, $oMySQL);
+    
+    // displayChampions($test, $oMySQL);
+    
+    // getChampionsImages($test, $oMySQL);
+    // getItemsImages($test, $oMySQL);
+    // getMapsImages($test, $oMySQL);
+    // getSpellsImages($test, $oMySQL);
+    // getRunesImages($test, $oMySQL);
+    // getMasteriesImages($test, $oMySQL);
+    
     
     // INSERT DATA IN DB
     
@@ -131,6 +140,36 @@
 
     }
     
+    function addRunes($test, $oMySQL)
+    {
+            $request = $test->getAllRunes();
+            //$test->debug($request);
+
+            foreach ($request['data'] as $rune) {
+
+               $tags = '';
+               foreach($rune['tags'] as $description) {
+                   $tags .= $description;
+                   $tags .= ' | ';
+               }
+                
+                $toInsert = array(
+                  'rune_id' => $rune['id'],
+                  'description' => $rune['sanitizedDescription'],
+                  'rune_name' => $rune['name'],
+                  'tags' => $tags,
+                  'isRune' => $rune['rune']['isRune'],
+                  'tier' => $rune['rune']['tier'],
+                  'type' => $rune['rune']['type'],
+                  'image_full' => $rune['image']['full'],
+                  'image_sprite' => $rune['image']['sprite']
+                );
+
+                @$oMySQL->insert('rt_runes', $toInsert);
+            }
+
+    }
+    
     function addChampionsTags($test, $oMySQL)
     {
         try {
@@ -190,6 +229,80 @@
             echo $img . '<br/>';
             //echo $dir . '/' .$champion['image_full'] .'<br/>';
             file_put_contents($dir . '/' . $champion['image_full'], file_get_contents($img));
+            //echo file_get_contents($img);            
+        }
+    }
+    
+    function getItemsImages($test, $oMySQL)
+    {
+        $dir =  getcwd() . '/assets/images/items';
+        $image_prefix = 'http://ddragon.leagueoflegends.com/cdn/5.2.1/img/item/';
+        $items = $oMySQL->select('rt_items');
+        foreach ($items as $item) {
+            $img = $image_prefix . $item['image_full'];
+            echo $img . '<br/>';
+            echo $dir . '/' .$item['image_full'] .'<br/>';
+            file_put_contents($dir . '/' . $item['image_full'], file_get_contents($img));
+            //echo file_get_contents($img);            
+        }
+    }
+    
+    function getMapsImages($test, $oMySQL)
+    {
+        $dir =  getcwd() . '/assets/images/maps';
+        $image_prefix = 'http://ddragon.leagueoflegends.com/cdn/5.2.1/img/map/';
+        
+        $items = $oMySQL->select('rt_maps');
+        foreach ($items as $item) {
+            $img = $image_prefix . $item['image_full'];
+            echo $img . '<br/>';
+            echo $dir . '/' .$item['image_full'] .'<br/>';
+            file_put_contents($dir . '/' . $item['image_full'], file_get_contents($img));
+            //echo file_get_contents($img);            
+        }
+    }
+    
+        function getMasteriesImages($test, $oMySQL)
+    {
+        $dir =  getcwd() . '/assets/images/masteries';
+        $image_prefix = 'http://ddragon.leagueoflegends.com/cdn/5.2.1/img/mastery/';
+        
+        $items = $oMySQL->select('rt_masteries');
+        foreach ($items as $item) {
+            $img = $image_prefix . $item['image_full'];
+            echo $img . '<br/>';
+            echo $dir . '/' .$item['image_full'] .'<br/>';
+            file_put_contents($dir . '/' . $item['image_full'], file_get_contents($img));
+            //echo file_get_contents($img);            
+        }
+    }
+    
+        function getRunesImages($test, $oMySQL)
+    {
+        $dir =  getcwd() . '/assets/images/runes';
+        $image_prefix = 'http://ddragon.leagueoflegends.com/cdn/5.2.1/img/rune/';
+        
+        $items = $oMySQL->select('rt_runes');
+        foreach ($items as $item) {
+            $img = $image_prefix . $item['image_full'];
+            echo $img . '<br/>';
+            echo $dir . '/' .$item['image_full'] .'<br/>';
+            file_put_contents($dir . '/' . $item['image_full'], file_get_contents($img));
+            //echo file_get_contents($img);            
+        }
+    }
+    
+    function getSpellsImages($test, $oMySQL)
+    {
+        $dir =  getcwd() . '/assets/images/spells';
+        $image_prefix = 'http://ddragon.leagueoflegends.com/cdn/5.2.1/img/spell/';
+        
+        $items = $oMySQL->select('rt_spells');
+        foreach ($items as $item) {
+            $img = $image_prefix . $item['image_full'];
+            echo $img . '<br/>';
+            echo $dir . '/' .$item['image_full'] .'<br/>';
+            file_put_contents($dir . '/' . $item['image_full'], file_get_contents($img));
             //echo file_get_contents($img);            
         }
     }
