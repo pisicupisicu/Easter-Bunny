@@ -1,8 +1,6 @@
-<?php
+<?php    
 
-    require_once 'includes/config.php';
-    require_once 'includes/class.MySQL.php';
-    require_once 'AbstractStatic.php';
+require_once 'AbstractStatic.php';
 
 class Champions extends AbstractStatic
 {   
@@ -21,7 +19,7 @@ class Champions extends AbstractStatic
         
         foreach ($champions as $champion) {
             if ($champion['api_id'] == $championId) {
-                $this->debug($champion);
+                //$this->debug($champion);
                 return $champion;
             }
         }

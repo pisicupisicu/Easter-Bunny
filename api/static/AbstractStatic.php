@@ -1,7 +1,7 @@
 <?php
 
-require_once 'includes/config.php';
-require_once 'includes/class.MySQL.php';
+require_once '../includes/config.php';
+require_once '../includes/class.MySQL.php';
 
 abstract class AbstractStatic 
 {

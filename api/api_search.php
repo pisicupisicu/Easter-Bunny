@@ -2,17 +2,11 @@
     
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
-
-    require_once 'includes/config.php';
-    require_once 'includes/class.MySQL.php';
+        
     require_once 'static/Champions.php';
-    include('php-riot-api.php');
+    require_once 'riot/WrapperRiot.php';
     
-    $champions = new Champions();
-    $champions->getChampionsById(117);
-    die;
-    
-    $oMySQL = new MySQL(DB_NAME, DB_USERNAME, DB_PASSWORD);
+    $champions = new Champions();    
     
     $summoner_name = "Banhammer Live";
     $summoner_id = 25132718;
@@ -21,77 +15,17 @@
     //$sumonner_name = "Vivà";
     //$summoner_id = 48179352;
     $summoner_name = "DR luca";
-    $summoner_id = 27030988;
-    
-    
-    $region = 'eune';
-    $platform_id = strtoupper(substr($region, 0, -1)) . '1';
+    $summoner_id = 27030988;        
+    $region = 'eune';    
 
-    $test = new Riotapi($region);
-    //getLeague($test, $oMySQL, $summoner_id);
-    $structure = getCurrentGame($test, $oMySQL, $summoner_id, $platform_id);
-    displayCurrentGame($structure);
+    $test = new WrapperRiot($region);
+    //$test->getLeague($summoner_id);
+    $structure = $test->getCurrentGame($summoner_id);
+    displayCurrentGame($structure, $champions);
     
-    function getLeague($test, $oMySQL, $summoner_id)
-    {
-        try {
-            $request = $test->getLeague($summoner_id);
-            $test->debug($request);            
-        } catch(Exception $e) {
-            echo "Error: " . $e->getMessage();
-        };
-    }
     
-    function getCurrentGame($test, $oMySQL, $summoner_id, $platform_id)
-    {
-        try {
-            $request = $test->getCurrentGame($summoner_id, $platform_id);
-            
-            $structure = array();
-            
-            foreach ($request['participants'] as $key => $participant) {
-                if ($key < 5) {
-                    $structure['home']['users'][] = array(
-                        'summonerName' => $participant['summonerName'],
-                        'championId'   => $participant['championId'],
-                        'spell1Id'     => $participant['spell1Id'],
-                        'spell2Id'     => $participant['spell2Id']
-                    );
-                } else {
-                    $structure['away']['users'][] = array(
-                        'summonerName' => $participant['summonerName'],
-                        'championId'   => $participant['championId'],
-                        'spell1Id'     => $participant['spell1Id'],
-                        'spell2Id'     => $participant['spell2Id']
-                    );
-                }
-                
-            }
-            
-            foreach ($request['bannedChampions'] as $key => $bannedChampion) {
-                if ($bannedChampion['teamId'] == 100) {
-                    $structure['home']['bannedChampions'][] = array(
-                        'championId' => $bannedChampion['championId'],
-                        'pickTurn' => $bannedChampion['pickTurn']
-                    );
-                } else {
-                    $structure['away']['bannedChampions'][] = array(
-                        'championId' => $bannedChampion['championId'],
-                        'pickTurn' => $bannedChampion['pickTurn']
-                    );
-                }
-                
-            }
-            
-            //$test->debug($request);
-            $test->debug($structure);
-            return $structure;
-        } catch(Exception $e) {
-            echo "Error: " . $e->getMessage();
-        };
-    }
     
-    function displayCurrentGame($structure)
+    function displayCurrentGame($structure, $champions)
     {
         ?>
         <div class="team-1">
@@ -130,8 +64,8 @@
                <img src="http://media-noxia.cursecdn.com/avatars/thumbnails/38/929/28/28/3743955540.png" title="Teleport" class="summoner-spell tip">
             
         </div>
-
-        <span>Master Yi
+        <?php $champion = $champions->getChampionsById($structure['home']['users'][0]['championId']); ?>
+        <span><?php echo $champion['name']; ?>
         
         (<b title="&lt;h2&gt;Champion Games&lt;/h2&gt;The number of games played with this champion." class="num-games tip">45</b>)</span>
         

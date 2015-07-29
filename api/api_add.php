@@ -1,7 +1,7 @@
 <?php
     require_once 'includes/config.php';
     require_once 'includes/class.MySQL.php';
-    include('php-riot-api.php');
+    include('riot/Riotapi.php');
     
     $oMySQL = new MySQL(DB_NAME, DB_USERNAME, DB_PASSWORD);
     
