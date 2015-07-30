@@ -1,7 +1,5 @@
 <?php
 
-require_once '../includes/config.php';
-require_once '../includes/class.MySQL.php';
 require_once 'Riotapi.php';
 
 class WrapperRiot 
@@ -11,10 +9,10 @@ class WrapperRiot
    private $oMysql;
    private $riot;
     
-    public function __construct($region = 'eune')
+    public function __construct($region = 'eune', $oMySQL)
     {
-        $this->region = $region;   
-        $this->oMySQL = new MySQL(DB_NAME, DB_USERNAME, DB_PASSWORD);
+        $this->region = $region;
+        $this->oMySQL = $oMySQL;
         $this->riot = new Riotapi($this->region);
         $this->platform_id = strtoupper(substr($this->region, 0, -1)) . '1';
     }        

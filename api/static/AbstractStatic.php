@@ -1,15 +1,12 @@
 <?php
 
-require_once '../includes/config.php';
-require_once '../includes/class.MySQL.php';
-
 abstract class AbstractStatic 
 {
     private $oMysql;
     
-    public function __construct()
+    public function __construct($oMysql)
     {
-           $this->oMySQL = new MySQL(DB_NAME, DB_USERNAME, DB_PASSWORD);    
+           $this->oMySQL = $oMysql;
     }
     
     public function debug($message) 

@@ -1,12 +1,22 @@
+<html>
+    <head>
+        <link href="assets/css/compile.css" type="text/css" rel="stylesheet"/>
+    </head>
+    <body>
 <?php
     
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
-        
+    
+    require_once 'includes/config.php';
+    require_once 'includes/class.MySQL.php';
     require_once 'static/Champions.php';
+    require_once 'static/Spells.php';
     require_once 'riot/WrapperRiot.php';
     
-    $champions = new Champions();    
+    $oMySQL = new MySQL(DB_NAME, DB_USERNAME, DB_PASSWORD);    
+    $champions = new Champions($oMySQL);
+    $spells = new Spells($oMySQL);
     
     $summoner_name = "Banhammer Live";
     $summoner_id = 25132718;
@@ -16,16 +26,22 @@
     //$summoner_id = 48179352;
     $summoner_name = "DR luca";
     $summoner_id = 27030988;        
-    $region = 'eune';    
+    $region = 'eune';
+    
+    $summoner_name = "Gekoz";
+    $sumonner_id = 24501468;
+    
+    $sumonner_name = "TakiDzikus";
+    $sumonner_id = 35511199;
 
-    $test = new WrapperRiot($region);
+    $test = new WrapperRiot($region, $oMySQL);
     //$test->getLeague($summoner_id);
     $structure = $test->getCurrentGame($summoner_id);
-    displayCurrentGame($structure, $champions);
+    displayCurrentGame($structure, $champions, $spells);
     
     
     
-    function displayCurrentGame($structure, $champions)
+    function displayCurrentGame($structure, $champions, $spells)
     {
         ?>
         <div class="team-1">
@@ -54,17 +70,21 @@
         </a>
         
     </td>
+    
+    <?php 
+        $champion = $champions->getChampionsById($structure['home']['users'][0]['championId']);
+        $spell1 = $spells->getSpellsById($structure['home']['users'][0]['spell1Id']);
+        $spell2 = $spells->getSpellsById($structure['home']['users'][0]['spell2Id']);
+    ?>
     <td class="champion">
+        <img src="assets/images/champions/<?php echo $champion['image_full']; ?>" alt="<?php echo $champion['name']; ?>" width="28px" height="28px"/>
         <i class="icon champions-lol-28 master-yi"></i>
         
         <div class="summoner-spells">
-            
-               <img src="http://media-noxia.cursecdn.com/avatars/thumbnails/38/928/28/28/271844816.png" title="Smite" class="summoner-spell tip">
-            
-               <img src="http://media-noxia.cursecdn.com/avatars/thumbnails/38/929/28/28/3743955540.png" title="Teleport" class="summoner-spell tip">
-            
+            <img src="assets/images/spells/<?php echo $spell1['image_full']; ?>" alt="<?php echo $spell1['spell_name']; ?>" width="28px" height="28px" title="<?php echo $spell1['spell_name']; ?>" width="28px" height="28px"/>
+            <img src="assets/images/spells/<?php echo $spell2['image_full']; ?>" alt="<?php echo $spell2['spell_name']; ?>" width="28px" height="28px" title="<?php echo $spell2['spell_name']; ?>" width="28px" height="28px"/>
         </div>
-        <?php $champion = $champions->getChampionsById($structure['home']['users'][0]['championId']); ?>
+        
         <span><?php echo $champion['name']; ?>
         
         (<b title="&lt;h2&gt;Champion Games&lt;/h2&gt;The number of games played with this champion." class="num-games tip">45</b>)</span>
@@ -3682,4 +3702,7 @@
     </div>
         <?php
     }
-
+?>
+    </body>
+</html>
+        

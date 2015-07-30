@@ -4,9 +4,9 @@ require_once 'AbstractStatic.php';
 
 class Champions extends AbstractStatic
 {   
-    public function __construct()
+    public function __construct($oMysql)
     {
-        parent::__construct();
+        parent::__construct($oMysql);
     }
     
     public function getChampionsById($championId)
