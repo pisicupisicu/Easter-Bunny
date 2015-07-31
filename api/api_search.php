@@ -22,28 +22,35 @@
         $champions = new Champions($oMySQL);
         $spells = new Spells($oMySQL);
 
-        $summoner_name = "Banhammer Live";
-        $summoner_id = 25132718;
-        //$summoner_name = "Snowflakeyuki";
-        //$summoner_id = 36826926;
+        //$summoner_name = "Banhammer Live";
+        //$summoner_id = 25132718;
+        $summoner_name = "Snowflakeyuki";
+        $summoner_id = 36826926;
         //$sumonner_name = "Vivà";
         //$summoner_id = 48179352;
         //$summoner_name = "DR luca";
         //$summoner_id = 27030988;        
         $region = 'eune';
 
-        $summoner_name = "Gekoz";
-        $sumonner_id = 24501468;
+        //$summoner_name = "Gekoz";
+        //$sumonner_id = 24501468;
 
-        $sumonner_name = "TakiDzikus";
-        $sumonner_id = 35511199;
+        //$sumonner_name = "TakiDzikus";
+        //$sumonner_id = 35511199;
+        $summoner_name = "Hroula";
+        $summoner_id = 48630926;
 
         $test = new WrapperRiot($region, $oMySQL);
         //$test->getLeague($summoner_id);
-        $structure = $test->getCurrentGame($summoner_id);
-        displayCurrentGame($structure, $champions, $spells);
+        //$structure = $test->getCurrentGame($summoner_id);
+        displayCurrentGame($test, $summoner_id, $champions, $spells);
 
-        function displayCurrentGame($structure, $champions, $spells) {
+        function displayCurrentGame(WrapperRiot $test, $summoner_id, $champions, $spells) 
+        {
+            $structure = $test->getCurrentGame($summoner_id);
+            $summoner1_id = $test->getSummonerId($structure['home']['users'][0]['summonerName']);
+            $user1 = $test->getUserLeagueInfo($summoner1_id);
+            
             ?>
             <div class="noxia-search-results" >
                 <div class="noxia-search j-noxia-search">
@@ -74,11 +81,11 @@
 
                                     </td>
 
-    <?php
-    $champion = $champions->getChampionsById($structure['home']['users'][0]['championId']);
-    $spell1 = $spells->getSpellsById($structure['home']['users'][0]['spell1Id']);
-    $spell2 = $spells->getSpellsById($structure['home']['users'][0]['spell2Id']);
-    ?>
+                <?php
+                    $champion = $champions->getChampionsById($structure['home']['users'][0]['championId']);
+                    $spell1 = $spells->getSpellsById($structure['home']['users'][0]['spell1Id']);
+                    $spell2 = $spells->getSpellsById($structure['home']['users'][0]['spell2Id']);
+                ?>
                                     <td class="champion">
                                         <img src="assets/images/champions/<?php echo $champion['image_full']; ?>" alt="<?php echo $champion['name']; ?>" width="28px" height="28px"/>
                                         <i class="icon champions-lol-28 master-yi"></i>
@@ -96,7 +103,7 @@
 
                                     <td class="current-season">
                                         <div class="ranking">
-                                            <span class="champion-ranks master-i">Master I (<b>253 LP</b>)</span>
+                                            <span class="champion-ranks master-i"><?php echo $user1['tier']; ?> <?php echo $user1['division']; ?> (<b><?php echo $user1['leaguePoints']; ?> LP</b>)</span>
 
                                         </div>
                                     </td>  
@@ -106,8 +113,8 @@
 
                                     <td class="ranked-wins-losses">
                                         <div>
-                                            <span class="ranked-wins">482</span>
-                                            <span class="slash">/</span><span class="ranked-losses">403</span>
+                                            <span class="ranked-wins"><?php echo $user1['wins']; ?></span>
+                                            <span class="slash">/</span><span class="ranked-losses"><?php echo $user1['losses']; ?></span>
                                         </div>
                                     </td>    
                                     <td class="champion-kda">
