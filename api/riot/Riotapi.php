@@ -261,7 +261,7 @@ class Riotapi
     //returns a summoner's id
     public function getSummonerId($name) 
     {
-        $name = strtolower($name);
+        $name = str_replace(' ', '', strtolower($name));
         $summoner = $this->getSummonerByName($name);
         if (self::DECODE_ENABLED) {
                 return $summoner[$name]['id'];

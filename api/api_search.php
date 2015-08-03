@@ -15,40 +15,46 @@
         require_once 'includes/class.MySQL.php';
         require_once 'static/Champions.php';
         require_once 'static/Spells.php';
+        require_once 'static/Masteries.php';
         require_once 'riot/WrapperRiot.php';
 
         $oMySQL = new MySQL(DB_NAME, DB_USERNAME, DB_PASSWORD);
         $champions = new Champions($oMySQL);
         $spells = new Spells($oMySQL);
+        $masteries = new Masteries($oMySQL);
+        
+        $summonners = array(
+            0 => array('name' => 'Banhammer Live',  'id'   => 25132718),
+            1 => array('name' => 'Snowflakeyuki',   'id'   => 36826926),
+            2 => array('name' => 'Vivà',            'id'   => 48179352),
+            3 => array('name' => 'DR luca',         'id'   => 27030988),
+            4 => array('name' => 'Gekoz',           'id'   => 24501468),
+            5 => array('name' => 'TakiDzikus',      'id'   => 35511199),
+            6 => array('name' => 'Hroula',          'id'   => 48630926),
+            7 => array('name' => 'Lolindyr',        'id'   => 51076531),
+            8 => array('name' => '',                'id'   => 1)
+        );
 
-        //$summoner_name = "Banhammer Live";
-        //$summoner_id = 25132718;
-        $summoner_name = "Snowflakeyuki";
-        $summoner_id = 36826926;
-        //$sumonner_name = "Vivà";
-        //$summoner_id = 48179352;
-        //$summoner_name = "DR luca";
-        //$summoner_id = 27030988;        
+        
         $region = 'eune';
+        $id = 2;
 
-        //$summoner_name = "Gekoz";
-        //$sumonner_id = 24501468;
-
-        //$sumonner_name = "TakiDzikus";
-        //$sumonner_id = 35511199;
-        //$summoner_name = "Hroula";
-        //$summoner_id = 48630926;
-
+        $summoner_name = $summonners[$id]['name'];
+        $summoner_id = $summonners[$id]['id'];
+        
+                
         $test = new WrapperRiot($region, $oMySQL);
         //$test->getLeague($summoner_id);
         //$structure = $test->getCurrentGame($summoner_id);
-        displayCurrentGame($test, $summoner_id, $champions, $spells);
+        displayCurrentGame($test, $summoner_id, $champions, $spells, $masteries);
 
-        function displayCurrentGame(WrapperRiot $test, $summoner_id, $champions, $spells) 
+        function displayCurrentGame(WrapperRiot $test, $summoner_id, $champions, $spells, $masteries) 
         {
             $structure = $test->getCurrentGame($summoner_id);
             $summoner1_id = $test->getSummonerId($structure['home']['users'][0]['summonerName']);
             $user1 = $test->getUserLeagueInfo($summoner1_id);
+            $masteriesUser1 = $masteries->computeMasteries($structure['home']['users'][0]['masteries']);
+            //$test->debug($masteriesUser1);die;
             
             ?>
             <div class="noxia-search-results" >
@@ -99,10 +105,10 @@
                                             (<b title="&lt;h2&gt;Champion Games&lt;/h2&gt;The number of games played with this champion." class="num-games tip">45</b>)</span>
 
                                     </td>
-
+`
                                     <td class="current-season">
                                         <div class="ranking">
-                                            <span class="champion-ranks master-i"><?php echo $user1['tier']; ?> <?php echo $user1['division']; ?> (<b><?php echo $user1['leaguePoints']; ?> LP</b>)</span>
+                                            <img src="assets/images/divisions/<?php echo strtolower($user1['tier']);  ?>.png" width="28px" height="28px"/><?php echo $user1['tier']; ?> <?php echo $user1['division']; ?> (<b><?php echo $user1['leaguePoints']; ?> LP</b>)
 
                                         </div>
                                     </td>  
@@ -794,7 +800,7 @@
                                                     <br><b>0</b> Utility</p>
                                                 <p>Note: Click button for full mastery tree.</p>
                                             </div>
-                                            <span class="offense">21</span>/<span class="defense">9</span>/<span class="utility">0</span>
+                                            <span class="offense"><?php echo $masteriesUser1['Offense']; ?></span>/<span class="defense"><?php echo $masteriesUser1['Defense']; ?></span>/<span class="utility"><?php echo $masteriesUser1['Utility']; ?></span>
                                         </a>
                                     </td>
 

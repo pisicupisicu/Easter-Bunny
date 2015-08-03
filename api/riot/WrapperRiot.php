@@ -91,14 +91,16 @@ class WrapperRiot
                         'summonerName' => $participant['summonerName'],
                         'championId'   => $participant['championId'],
                         'spell1Id'     => $participant['spell1Id'],
-                        'spell2Id'     => $participant['spell2Id']
+                        'spell2Id'     => $participant['spell2Id'],
+                        'masteries'    => $participant['masteries']
                     );
                 } else {
                     $structure['away']['users'][] = array(
                         'summonerName' => $participant['summonerName'],
                         'championId'   => $participant['championId'],
                         'spell1Id'     => $participant['spell1Id'],
-                        'spell2Id'     => $participant['spell2Id']
+                        'spell2Id'     => $participant['spell2Id'],
+                        'masteries'    => $participant['masteries']
                     );
                 }
                 
@@ -127,7 +129,7 @@ class WrapperRiot
         };
     }
     
-    private function debug($message) 
+    public function debug($message) 
     {
         echo "<pre>";
         print_r($message);
