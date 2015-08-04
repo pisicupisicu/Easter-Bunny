@@ -2,6 +2,18 @@
 
 @import url(//fonts.googleapis.com/css?family=Open+Sans:400,700);
 @import url(//fonts.googleapis.com/css?family=Noto+Sans:400,700);
+
+body {
+    background-image: url('../../assets/images/images-search/teemo_background_optim.jpg') !important;
+}
+
+.noxia-search-results {
+    width: 70%;
+    margin:20px auto;
+    max-width: 1300px;
+    min-width: 1100px;
+}
+
 .noxia-search table thead tr th {
     padding: 8px;
     white-space: nowrap;
@@ -1713,8 +1725,8 @@ body .ui-dialog .poll-form-container .field-list .form-field+.field-list-new-ent
 }
 .disabled:active,
 .s-disabled:active {
-    background-image: -webkit-linear, top, #47addc, #2082bf-gradient(!important);
-    background-image: linear, top, #47addc, #2082bf-gradient(!important)
+    background-image: -webkit-linear, top, #47addc, #2082bf-gradient !important;
+    background-image: linear, top, #47addc, #2082bf-gradient !important
 }
 .spoiler {
     display: none
@@ -13217,10 +13229,8 @@ body.body-user .single-column #content .p-forum-a .p-comment-stats li:last-of-ty
     body.body-user.responsive-enabled .container .p-forum-a tbody .col-thread,
     body.body-user.responsive-enabled .container .p-forum-a thead .col-forum,
     body.body-user.responsive-enabled .container .p-forum-a thead .col-thread {
-        width: -webkit-calc(100% - 25px;
-        );
-        width: calc(100% - 25px;
-        )
+        width: -webkit-calc(100% - 25px);
+        width: calc(100% - 25px)
     }
     body.body-forum.responsive-enabled .container .p-forum-a tbody .col-forum span.description,
     body.body-forum.responsive-enabled .container .p-forum-a tbody .col-forum ul.forum-subs,
