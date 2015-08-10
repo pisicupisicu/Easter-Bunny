@@ -199,6 +199,22 @@ class Riotapi
         $call = self::API_URL_2_2  . 'matchhistory/' . $id;
         return $this->request($call);
     }
+    
+    //Returns a user's matchList given their summoner id and champion Id
+    public function getMatchList($id, $championId = 0, $season = null) 
+    {
+        $bool = false;
+        if ($championId) {
+            $call = '?championIds=' . $championId;
+            if (isset($season)) {
+                $call .= '&seasons=SEASON' . $season;
+            }
+            $bool = true;
+        }
+        
+        $call = self::API_URL_2_2  . 'matchlist/by-summoner/' . $id . $call;
+        return $this->request($call, $bool);
+    }
 
     //Returns game statistics given a summoner's id.
     public function getGame($id)
