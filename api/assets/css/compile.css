@@ -23763,10 +23763,11 @@ body.body-home-index .search-scouter .search-button {
     border-bottom-color: #8a59ca
 }
 .header-bar {
-    background: url(../images/game_bg_banner.png) transparent;
+    background: url(../../assets/images/images-search/game_bg_banner.png) transparent;
     height: 100px;
     margin-bottom: 20px;
-    position: relative
+    position: relative;
+    background-color:#FFFFFF;
 }
 .header-bar h2 {
     width: 900px;
