@@ -42,27 +42,92 @@
         // https://eune.api.pvp.net/api/lol/eune/v1.4/summoner/by-name/FNC Rekkles?api_key=b47507e5-3e3b-440f-b442-6c587f02fb14
 
         $region = 'eune';
-        $id = 10;
+        $id = 4;
 
-        $summoner_name = $summonners[$id]['name'];
-        $summoner_id = $summonners[$id]['id'];
+        $summonerName = $summonners[$id]['name'];
+        $summonerId = $summonners[$id]['id'];
+        
+        //displayError();die;
 
 
         $test = new WrapperRiot($region, $oMySQL);
         //$test->getLeague($summoner_id);
         //$structure = $test->getCurrentGame($summoner_id);        
-        displayCurrentGame($test, 'home', $summoner_id, $champions, $spells, $masteries);
-        displayCurrentGame($test, 'away', $summoner_id, $champions, $spells, $masteries);
-
-        function displayCurrentGame(WrapperRiot $test, $team, $summoner_id, $champions, $spells, $masteries) {
-            $structure = $test->getCurrentGame($summoner_id);
+        //displayCurrentGame($test, 'home', $summoner_id, $champions, $spells, $masteries);
+        //displayCurrentGame($test, 'away', $summoner_id, $champions, $spells, $masteries);
+        
+        try {
+            $structure = getData($test, $summonerName, $champions, $spells, $masteries);
+            displayCurrentGameHeader();
+            displayCurrentGame('home', $structure);
+            displayCurrentGame('away', $structure);
+            displayCurrentGameBottom();
+        } catch (Exception $ex) {
+            displayError($summonerName, $ex->getMessage());            
+        }
+        
+        function getData(WrapperRiot $test, $summonerName, $champions, $spells, $masteries)
+        {
+            $teams = array('home', 'away');
+            $summonerId = $test->getSummonerId($summonerName);
+            $structure = $test->getCurrentGame($summonerId);
+                        
+            for ($i = 0; $i < 5; $i++) {
+                foreach ($teams as $team) {
+                    $structure[$team]['users'][$i]['champion'] = $champions->getChampionsById($structure[$team]['users'][$i]['championId']);
+                    $structure[$team]['users'][$i]['spell1'] = $spells->getSpellsById($structure[$team]['users'][$i]['spell1Id']);
+                    $structure[$team]['users'][$i]['spell2'] = $spells->getSpellsById($structure[$team]['users'][$i]['spell2Id']);
+                    
+                    $currentSummonerId = $test->getSummonerId($structure[$team]['users'][$i]['summonerName']);
+                    $matchStats = $test->getMatchStats($currentSummonerId, $structure[$team]['users'][$i]['championId']);
+                    $structure[$team]['users'][$i]['matchStats']['total'] = $matchStats['total'];
+                    $structure[$team]['users'][$i]['matchStats']['avg_kills'] = $matchStats['avg_kills'];
+                    $structure[$team]['users'][$i]['matchStats']['avg_assists'] = $matchStats['avg_assists'];
+                    $structure[$team]['users'][$i]['matchStats']['avg_deaths'] = $matchStats['avg_deaths'];
+                    
+                    $currentUser = $test->getUserLeagueInfo($currentSummonerId);
+                    $structure[$team]['users'][$i]['tier'] = $currentUser['tier'];
+                    $structure[$team]['users'][$i]['division'] = $currentUser['division'];
+                    $structure[$team]['users'][$i]['leaguePoints'] = $currentUser['leaguePoints'];
+                    
+                    $masteriesCurrentUser = $masteries->computeMasteries($structure[$team]['users'][$i]['masteries']);                   
+                    $structure[$team]['users'][$i]['Offense'] = $masteriesCurrentUser['Offense'];
+                    $structure[$team]['users'][$i]['Defense'] = $masteriesCurrentUser['Defense'];
+                    $structure[$team]['users'][$i]['Utility'] = $masteriesCurrentUser['Utility'];
+                    
+                    $stats = $test->getStats($currentSummonerId);
+                    $structure[$team]['users'][$i]['unranked_wins'] = $stats['unranked_wins'];
+                    $structure[$team]['users'][$i]['ranked_wins'] = $stats['ranked_wins'];
+                    $structure[$team]['users'][$i]['ranked_losses'] = $stats['ranked_losses'];                   
+                }
+            }
+            
+            return $structure;
+        }
+        
+        function displayCurrentGameHeader()
+        {
             ?>
-            <div class="noxia-search-results" >
+             <div class="noxia-search-results" >
                 <div class="noxia-search j-noxia-search">
                     <div class="header-bar">
                         <h2>Overkill92 <small>Summoner's Rift, Ranked Solo 5v5 - EUNE</small></h2>
-                    </div>
-                    <div class="team-1">
+                    </div>                    
+            <?php
+        }
+        
+        function displayCurrentGameBottom()
+        {
+            ?>
+               </div>
+                </div>                
+            <?php
+        }
+                
+        function displayCurrentGame($team, $structure) 
+        {
+            ?>
+            <div class="team-<?php echo $team == 'home' ? '1' : '2'; ?>">
 
                         <table>
                             <thead>
@@ -79,65 +144,53 @@
                                     <th class="masteries">Masteries</th>
                                 </tr>
                             </thead>
-                            <tbody>
-    <?php for ($i = 0; $i < 5; $i++) { ?>    
-                                    <tr class="<?php if ($i == 1) echo 'searched'; ?> ">
-                                        <td class="name">
-                                            <a onclick="Noxia.trackOutboundLink(this, 'OffSiteLinks', 'OPGG Click Europe Nordic &amp; East');" target="outbound" href="http://eune.op.gg/summoner/userName=qwickpl">
-                                                <span><?php echo $structure[$team]['users'][$i]['summonerName']; ?></span>
-                                            </a>
+                            <tbody>        
+            <?php
+            for ($i = 0; $i < 5; $i++) { ?>    
+                                <tr class="<?php if ($i == 1) echo 'searched'; ?> ">
+                                    <td class="name">
+                                        <a onclick="Noxia.trackOutboundLink(this, 'OffSiteLinks', 'OPGG Click Europe Nordic &amp; East');" target="outbound" href="http://eune.op.gg/summoner/userName=qwickpl">
+                                            <span><?php echo $structure[$team]['users'][$i]['summonerName']; ?></span>
+                                        </a>
 
-                                        </td>
-
-        <?php
-        $champion = $champions->getChampionsById($structure[$team]['users'][$i]['championId']);
-        $spell1 = $spells->getSpellsById($structure[$team]['users'][$i]['spell1Id']);
-        $spell2 = $spells->getSpellsById($structure[$team]['users'][$i]['spell2Id']);
-
-        $current_summoner_id = $test->getSummonerId($structure[$team]['users'][$i]['summonerName']);
-        //$test->getMatchList($summoner1_id, $structure[$team]['users'][0]['championId']);
-        $matchStats = $test->getMatchStats($current_summoner_id, $structure[$team]['users'][$i]['championId']);
-        $currentUser = $test->getUserLeagueInfo($current_summoner_id);
-        $masteriesCurrentUser = $masteries->computeMasteries($structure[$team]['users'][$i]['masteries']);
-        $stats = $test->getStats($current_summoner_id);
-        //$test->debug($masteriesCurrentUser);die;
-        ?>
+                                    </td>
+       
                                         <td class="champion">
-                                            <img src="assets/images/champions/<?php echo $champion['image_full']; ?>" alt="<?php echo $champion['name']; ?>" width="28px" height="28px"/>
+                                            <img src="assets/images/champions/<?php echo $structure[$team]['users'][$i]['champion']['image_full']; ?>" alt="<?php echo $structure[$team]['users'][$i]['champion']['name']; ?>" width="28px" height="28px"/>
                                             <i class="icon champions-lol-28 master-yi"></i>
 
                                             <div class="summoner-spells">
-                                                <img src="assets/images/spells/<?php echo $spell1['image_full']; ?>" alt="<?php echo $spell1['spell_name']; ?>" width="28px" height="28px" title="<?php echo $spell1['spell_name']; ?>" width="28px" height="28px"/>
-                                                <img src="assets/images/spells/<?php echo $spell2['image_full']; ?>" alt="<?php echo $spell2['spell_name']; ?>" width="28px" height="28px" title="<?php echo $spell2['spell_name']; ?>" width="28px" height="28px"/>
+                                                <img src="assets/images/spells/<?php echo $structure[$team]['users'][$i]['spell1']['image_full']; ?>" alt="<?php echo $structure[$team]['users'][$i]['spell1']['spell_name']; ?>" width="28px" height="28px" title="<?php echo $structure[$team]['users'][$i]['spell1']['spell_name']; ?>" width="28px" height="28px"/>
+                                                <img src="assets/images/spells/<?php echo $structure[$team]['users'][$i]['spell2']['image_full']; ?>" alt="<?php echo $structure[$team]['users'][$i]['spell2']['spell_name']; ?>" width="28px" height="28px" title="<?php echo $structure[$team]['users'][$i]['spell2']['spell_name']; ?>" width="28px" height="28px"/>
                                             </div>
 
-                                            <span><?php echo $champion['name']; ?>
+                                            <span><?php echo $structure[$team]['users'][$i]['champion']['name']; ?>
 
-                                                (<b title="&lt;h2&gt;Champion Games&lt;/h2&gt;The number of games played with this champion." class="num-games tip"><?php echo $matchStats['total']; ?></b>)</span>
+                                                (<b title="&lt;h2&gt;Champion Games&lt;/h2&gt;The number of games played with this champion." class="num-games tip"><?php echo $structure[$team]['users'][$i]['matchStats']['total']; ?></b>)</span>
 
                                         </td>
                                         
                                         <td class="current-season">
                                             <div class="ranking">
-                                                <img src="assets/images/divisions/<?php echo strtolower($currentUser['tier']); ?>.png" width="28px" height="28px"/><?php echo $currentUser['tier']; ?> <?php echo $currentUser['division']; ?> (<b><?php echo $currentUser['leaguePoints']; ?> LP</b>)
+                                                <img src="assets/images/divisions/<?php echo strtolower($structure[$team]['users'][$i]['tier']); ?>.png" width="28px" height="28px"/><?php echo $structure[$team]['users'][$i]['tier']; ?> <?php echo $structure[$team]['users'][$i]['division']; ?> (<b><?php echo $structure[$team]['users'][$i]['leaguePoints']; ?> LP</b>)
 
                                             </div>
                                         </td>  
 
 
                                         <td class="normal-wins">
-                                            <span title="&lt;h2&gt;Summoner Level&lt;/h2&gt;Level 30" class="normal-wins-span tip"><?php echo $stats['unranked_wins']; ?></span>
+                                            <span title="&lt;h2&gt;Summoner Level&lt;/h2&gt;Level 30" class="normal-wins-span tip"><?php echo $structure[$team]['users'][$i]['unranked_wins']; ?></span>
                                         </td>
 
                                         <td class="ranked-wins-losses">
                                             <div>
-                                                <span class="ranked-wins"><?php echo $stats['ranked_wins']; ?></span>
-                                                <span class="slash">/</span><span class="ranked-losses"><?php echo $stats['ranked_losses']; ?></span>
+                                                <span class="ranked-wins"><?php echo $structure[$team]['users'][$i]['ranked_wins']; ?></span>
+                                                <span class="slash">/</span><span class="ranked-losses"><?php echo $structure[$team]['users'][$i]['ranked_losses']; ?></span>
                                             </div>
                                         </td>    
                                         <td class="champion-kda">
 
-                                            <span class="kills"><?php echo $matchStats['avg_kills']; ?></span><span class="slash">/</span><span class="deaths"><?php echo $matchStats['avg_deaths']; ?></span><span class="slash">/</span><span class="assists"><?php echo $matchStats['avg_assists']; ?></span>
+                                            <span class="kills"><?php echo $structure[$team]['users'][$i]['matchStats']['avg_kills']; ?></span><span class="slash">/</span><span class="deaths"><?php echo $structure[$team]['users'][$i]['matchStats']['avg_deaths']; ?></span><span class="slash">/</span><span class="assists"><?php echo $structure[$team]['users'][$i]['matchStats']['avg_assists']; ?></span>
                                         </td>
 
 
@@ -150,7 +203,7 @@
 
                                             </div>
 
-                                            <a class="green-button tip" data-toggle="modal" data-target="#myModal" data-toggle="tooltip" title="<?php echo $masteriesCurrentUser['Offense'] . '/' . $masteriesCurrentUser['Defense'] . '/' . $masteriesCurrentUser['Utility']; ?>">
+                                            <a class="green-button tip" data-toggle="modal" data-target="#myModal" data-toggle="tooltip" title="<?php echo $structure[$team]['users'][$i]['Offense'] . '/' . $structure[$team]['users'][$i]['Defense'] . '/' . $structure[$team]['users'][$i]['Utility']; ?>">
                                                 <div class="tooltip-html" >
                                                     <h2></h2>                     
                                                     <p><b>21</b> Offense
@@ -158,7 +211,7 @@
                                                         <br><b>0</b> Utility</p>
                                                     <p>Note: Click button for full mastery tree.</p>
                                                 </div>
-                                                <span class="offense"><?php echo $masteriesCurrentUser['Offense']; ?></span>/<span class="defense"><?php echo $masteriesCurrentUser['Defense']; ?></span>/<span class="utility"><?php echo $masteriesCurrentUser['Utility']; ?></span>
+                                                <span class="offense"><?php echo $structure[$team]['users'][$i]['Offense']; ?></span>/<span class="defense"><?php echo $structure[$team]['users'][$i]['Defense']; ?></span>/<span class="utility"><?php echo $structure[$team]['users'][$i]['Utility']; ?></span>
                                             </a>
                                         </td>
 
@@ -172,11 +225,7 @@
                             </table>
 
                         </div>                                        
-
-                    </div>
-                </div>
-            </div>
-
+                    
 
         <!-- Modal -->
         <div class="modal fade" id="myModal" role="dialog">
@@ -843,7 +892,88 @@
                                     </td>
 
                                 </tr>
-<?php } ?>
+        </div>
+<?php } 
+
+    function displayError($summonerName, $error)
+    {
+        ?>
+        <div data-character-name="Bloody Diana" data-region-code="EUNE" id="noxia-search-results">
+            <div class="error" style="color:#FFF;text-align: center;font-size:18px;">
+                The summoner <?php echo $summonerName; ?> is not currently in a game.<br/>
+                <?php echo $error; ?>
+            </div>                
+        </div>
+        <div class="search-box hide j-search-box" style="display: block;">            
+
+        <div class="search-scouter">
+        <form id="search-form" method="GET" action="/EUNE/search" novalidate="novalidate">
+            <input type="search" placeholder="Search player in a match" name="name" id="name-search" class="valid"><input type="submit" value="Search" id="new-search-submit" class="new-search">
+
+            <div class="new-button-wrapper j-noxia-search">
+
+                    <input type="radio" value="NA" id="NA" name="region" "="">
+                    <label title="North America" class="tip" for="NA">
+                        NA
+                        <span class="label-helper"></span>
+                    </label>
+
+                    <input type="radio" value="EUW" id="EUW" name="region" "="">
+                    <label title="Europe West" class="tip" for="EUW">
+                        EUW
+                        <span class="label-helper"></span>
+                    </label>
+
+                    <input type="radio" value="EUNE" id="EUNE" name="region" checked="&quot;checked&quot;&quot;">
+                    <label title="Europe Nordic &amp; East" class="tip" for="EUNE">
+                        EUNE
+                        <span class="label-helper"></span>
+                    </label>
+
+                    <input type="radio" value="BR" id="BR" name="region" "="">
+                    <label title="Brazil" class="tip" for="BR">
+                        BR
+                        <span class="label-helper"></span>
+                    </label>
+
+                    <input type="radio" value="TR" id="TR" name="region" "="">
+                    <label title="Turkey" class="tip" for="TR">
+                        TR
+                        <span class="label-helper"></span>
+                    </label>
+
+                    <input type="radio" value="RU" id="RU" name="region" "="">
+                    <label title="Russia" class="tip" for="RU">
+                        RU
+                        <span class="label-helper"></span>
+                    </label>
+
+                    <input type="radio" value="LAN" id="LAN" name="region" "="">
+                    <label title="Latin America North" class="tip" for="LAN">
+                        LAN
+                        <span class="label-helper"></span>
+                    </label>
+
+                    <input type="radio" value="LAS" id="LAS" name="region" "="">
+                    <label title="Latin America South" class="tip" for="LAS">
+                        LAS
+                        <span class="label-helper"></span>
+                    </label>
+
+                    <input type="radio" value="OCE" id="OCE" name="region" "="">
+                    <label title="Oceania" class="tip" for="OCE">
+                        OCE
+                        <span class="label-helper"></span>
+                    </label>
+
+            </div>
+        </form>        
+        </div>
+
+            </div>
+        <?php
+    }
+?>
                         </tbody>
                     </table>
 

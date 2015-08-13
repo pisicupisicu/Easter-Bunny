@@ -9,7 +9,7 @@ class WrapperRiot
    private $oMysql;
    private $riot;
    
-   const NR_MATCHES = 15;
+   const NR_MATCHES = 1;//15;
     
     public function __construct($region = 'eune', $oMySQL)
     {
@@ -22,7 +22,7 @@ class WrapperRiot
     public function getSummonerId($name)
     {
         return $this->riot->getSummonerId($name);
-    }
+    }        
     
     /**
     *  [36826926] => Array
@@ -49,131 +49,111 @@ class WrapperRiot
     * 
     */
     public function getUserLeagueInfo($summoner_id)
-    {        
-        try {
-            $request = $this->riot->getLeague($summoner_id);
-            //$this->debug($request);
-            foreach ($request as $req) {
-                foreach ($req[0]['entries'] as $user) {
-                        if ($user['playerOrTeamId'] == $summoner_id) {
-                            $user['tier'] = $req[0]['tier'];
-                            //$this->debug($user);
-                            return $user;
-                    }
+    {
+        $request = $this->riot->getLeague($summoner_id);
+        //$this->debug($request);
+        foreach ($request as $req) {
+            foreach ($req[0]['entries'] as $user) {
+                    if ($user['playerOrTeamId'] == $summoner_id) {
+                        $user['tier'] = $req[0]['tier'];
+                        //$this->debug($user);
+                        return $user;
                 }
-                
             }
-        } catch(Exception $e) {
-            echo "Error: " . $e->getMessage();
-        };
+
+        }
         
         return array();                
     }        
     
     public function getLeague($summoner_id)
     {
-        try {
-            $request = $this->riot->getLeague($summoner_id);
-            $this->debug($request);            
-        } catch(Exception $e) {
-            echo "Error: " . $e->getMessage();
-        };
+        $request = $this->riot->getLeague($summoner_id);
+        $this->debug($request);
     }
-    
+        
     public function getCurrentGame($summoner_id)
     {
-        try {
-            $request = $this->riot->getCurrentGame($summoner_id, $this->platform_id);
+        $request = $this->riot->getCurrentGame($summoner_id, $this->platform_id);
             
-            $structure = array();
-            
-            foreach ($request['participants'] as $key => $participant) {
-                if ($key < 5) {
-                    $structure['home']['users'][] = array(
-                        'summonerName' => $participant['summonerName'],
-                        'championId'   => $participant['championId'],
-                        'spell1Id'     => $participant['spell1Id'],
-                        'spell2Id'     => $participant['spell2Id'],
-                        'masteries'    => $participant['masteries']
-                    );
-                } else {
-                    $structure['away']['users'][] = array(
-                        'summonerName' => $participant['summonerName'],
-                        'championId'   => $participant['championId'],
-                        'spell1Id'     => $participant['spell1Id'],
-                        'spell2Id'     => $participant['spell2Id'],
-                        'masteries'    => $participant['masteries']
-                    );
-                }
-                
+        $structure = array();
+
+        foreach ($request['participants'] as $key => $participant) {
+            if ($key < 5) {
+                $structure['home']['users'][] = array(
+                    'summonerName' => $participant['summonerName'],
+                    'championId'   => $participant['championId'],
+                    'spell1Id'     => $participant['spell1Id'],
+                    'spell2Id'     => $participant['spell2Id'],
+                    'masteries'    => $participant['masteries']
+                );
+            } else {
+                $structure['away']['users'][] = array(
+                    'summonerName' => $participant['summonerName'],
+                    'championId'   => $participant['championId'],
+                    'spell1Id'     => $participant['spell1Id'],
+                    'spell2Id'     => $participant['spell2Id'],
+                    'masteries'    => $participant['masteries']
+                );
             }
-            
-            foreach ($request['bannedChampions'] as $key => $bannedChampion) {
-                if ($bannedChampion['teamId'] == 100) {
-                    $structure['home']['bannedChampions'][] = array(
-                        'championId' => $bannedChampion['championId'],
-                        'pickTurn' => $bannedChampion['pickTurn']
-                    );
-                } else {
-                    $structure['away']['bannedChampions'][] = array(
-                        'championId' => $bannedChampion['championId'],
-                        'pickTurn' => $bannedChampion['pickTurn']
-                    );
-                }
-                
+
+        }
+
+        foreach ($request['bannedChampions'] as $key => $bannedChampion) {
+            if ($bannedChampion['teamId'] == 100) {
+                $structure['home']['bannedChampions'][] = array(
+                    'championId' => $bannedChampion['championId'],
+                    'pickTurn' => $bannedChampion['pickTurn']
+                );
+            } else {
+                $structure['away']['bannedChampions'][] = array(
+                    'championId' => $bannedChampion['championId'],
+                    'pickTurn' => $bannedChampion['pickTurn']
+                );
             }
-            
-            //$this->debug($request);
-            //$this->debug($structure);
-            return $structure;
-        } catch(Exception $e) {
-            echo "Error: " . $e->getMessage();
-        };
+
+        }
+
+        //$this->debug($request);
+        //$this->debug($structure);
+        return $structure;
     }
     
     public function getMatchList($summoner_id, $championId)
     {
         $i = 0;
         $result = array();
-        try {
-            $request = $this->riot->getMatchList($summoner_id, $championId, 2015);
-            if (isset($request['matches'])) {
-                foreach ($request['matches'] as $match) {
-                    $i++;                
-                    if (($match['queue'] == 'RANKED_SOLO_5x5') && $i < self::NR_MATCHES) {
-                        $result['matches'][] = $match['matchId'];                    
-                    }
-                    $result['total'] = $i;
+       
+        $request = $this->riot->getMatchList($summoner_id, $championId, 2015);
+        if (isset($request['matches'])) {
+            foreach ($request['matches'] as $match) {
+                $i++;                
+                if (($match['queue'] == 'RANKED_SOLO_5x5') && $i < self::NR_MATCHES) {
+                    $result['matches'][] = $match['matchId'];                    
                 }
-            } else {
-                $result['matches'] = array();
-                $result['total'] = 0;
+                $result['total'] = $i;
             }
-            
-            //$this->debug($result);die;
-            return $result;
-            
-        } catch(Exception $e) {
-            echo "Error: " . $e->getMessage();
-        };
+        } else {
+            $result['matches'] = array();
+            $result['total'] = 0;
+        }
+
+        //$this->debug($result);die;
+        return $result;
     }
     
     public function getMatch($matchId)
     {
         $result = array();
         
-        try {
-            $request = $this->riot->getMatch($matchId);
+       $request = $this->riot->getMatch($matchId);
             
-            $result['kills'] = $request['participants'][0]['stats']['kills'];
-            $result['deaths'] = $request['participants'][0]['stats']['deaths'];
-            $result['assists'] = $request['participants'][0]['stats']['assists'];
-            
-            //$this->debug($request);
-            return $result;            
-        } catch(Exception $e) {
-            echo "Error: " . $e->getMessage();
-        };
+        $result['kills'] = $request['participants'][0]['stats']['kills'];
+        $result['deaths'] = $request['participants'][0]['stats']['deaths'];
+        $result['assists'] = $request['participants'][0]['stats']['assists'];
+
+        //$this->debug($request);
+        return $result;
     }
         
     public function getMatchStats($summoner_id, $championId)
@@ -182,13 +162,13 @@ class WrapperRiot
         $matches  = $this->getMatchList($summoner_id, $championId);
         
         $result = array(
-          'total' => $matches['total'],
-          'matches'   => count($matches['matches']),
-          'kills'  => 0,
-          'deaths' => 0,
-          'assists' => 0,
-          'avg_kills' => 0,
-          'avg_deaths' => 0,
+          'total'       => $matches['total'],
+          'matches'     => isset($matches['matches']) ? count($matches['matches']) : 0,
+          'kills'       => 0,
+          'deaths'      => 0,
+          'assists'     => 0,
+          'avg_kills'   => 0,
+          'avg_deaths'  => 0,
           'avg_assists' => 0,
         );
         
@@ -218,21 +198,17 @@ class WrapperRiot
     {
         $result = array('ranked_wins' => 0, 'ranked_losses' => 0);
         
-        try {
-            $request = $this->riot->getStats($summoner_id);
-            foreach ($request['playerStatSummaries'] as $stat) {
-                if ($stat['playerStatSummaryType'] == 'Unranked') {
-                    $result['unranked_wins'] = $stat['wins'];
-                } elseif (strstr($stat['playerStatSummaryType'], 'Ranked')) {
-                    $result['ranked_wins'] += $stat['wins'];
-                    $result['ranked_losses'] += $stat['losses'];
-                }
+        $request = $this->riot->getStats($summoner_id);
+        foreach ($request['playerStatSummaries'] as $stat) {
+            if ($stat['playerStatSummaryType'] == 'Unranked') {
+                $result['unranked_wins'] = $stat['wins'];
+            } elseif (strstr($stat['playerStatSummaryType'], 'Ranked')) {
+                $result['ranked_wins'] += $stat['wins'];
+                $result['ranked_losses'] += $stat['losses'];
             }
-            //$this->debug($result);
-            return $result;
-        } catch(Exception $e) {
-            echo "Error: " . $e->getMessage();
-        };
+        }
+        //$this->debug($result);
+        return $result;
     }
     
     public function debug($message) 
