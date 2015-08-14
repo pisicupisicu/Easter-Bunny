@@ -36,13 +36,14 @@
             8 => array('name' => 'GodJinx', 'id' => 21020094),
             9 => array('name' => 'SUXY', 'id' => 19969803),
             10 => array('name' => 'Bloody Diana', 'id' => 23675633),
+            11 => array('name' => 'Lud Ka Struja', 'id' => 25236798)
         );
 
         // https://eune.api.pvp.net/api/lol/eune/v1.4/summoner/by-name/?api_key=b47507e5-3e3b-440f-b442-6c587f02fb14
         // https://eune.api.pvp.net/api/lol/eune/v1.4/summoner/by-name/FNC Rekkles?api_key=b47507e5-3e3b-440f-b442-6c587f02fb14
 
         $region = 'eune';
-        $id = 4;
+        $id = 10;
 
         $summonerName = $summonners[$id]['name'];
         $summonerId = $summonners[$id]['id'];
@@ -239,8 +240,7 @@
                     </div>
                     <div class="modal-body">
 
-                        <table class="talent-table">
-                            <tbody>
+                        <table class="talent-table">                           
                                 <tr>
 
                                     <td>
@@ -892,6 +892,10 @@
                                     </td>
 
                                 </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 <?php } 
 
