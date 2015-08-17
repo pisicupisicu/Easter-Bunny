@@ -1,1 +1,1 @@
-here comes the easter bunny with lots of money :)
+Riot application for offering statistics to LeagueOfLegends players
