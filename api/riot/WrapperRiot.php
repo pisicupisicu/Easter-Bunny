@@ -56,6 +56,7 @@ class WrapperRiot
             foreach ($req[0]['entries'] as $user) {
                     if ($user['playerOrTeamId'] == $summoner_id) {
                         $user['tier'] = $req[0]['tier'];
+                        $user['queue'] = str_replace('_', ' ', $req[0]['queue']);
                         //$this->debug($user);
                         return $user;
                 }
@@ -77,6 +78,8 @@ class WrapperRiot
         $request = $this->riot->getCurrentGame($summoner_id, $this->platform_id);
             
         $structure = array();
+        
+        $structure['mapId'] = $request['mapId'];
 
         foreach ($request['participants'] as $key => $participant) {
             if ($key < 5) {

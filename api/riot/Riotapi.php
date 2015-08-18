@@ -53,7 +53,7 @@ class Riotapi
     const API_URL_STATIC_RUNES = 'https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/rune?runeListData=all';
     
 
-    const API_KEY = 'b47507e5-3e3b-440f-b442-6c587f02fb14'; //b47507e5-3e3b-440f-b442-6c587f02fb14
+    const API_KEY = 'ad2b3635-ad88-49cf-b23f-cc71f7272188'; //'457c4612-4e79-47cc-8195-383ddc7eb69d'; //b47507e5-3e3b-440f-b442-6c587f02fb14
 
     // Rate limit for 10 minutes
     const LONG_LIMIT_INTERVAL = 600;
@@ -172,7 +172,7 @@ class Riotapi
 
     //gets current game information for player on platform (region?)
     //platform seems to be just uppercase region and 1 afterwards right now.
-    public function getCurrentGame($id,$platform)
+    public function getCurrentGame($id, $platform)
     {
         $call = self::API_URL_CURRENT_GAME_1_0 . $platform . '/' . $id;        
         return $this->request($call);
@@ -277,8 +277,9 @@ class Riotapi
     //returns a summoner's id
     public function getSummonerId($name) 
     {
-        $name = str_replace(' ', '', strtolower($name));
+        $name = str_replace(' ', '', mb_strtolower($name, 'utf-8'));        
         $summoner = $this->getSummonerByName($name);
+        //$this->debug($summoner);
         if (self::DECODE_ENABLED) {
                 return $summoner[$name]['id'];
         }
@@ -413,6 +414,9 @@ class Riotapi
                     $result = json_decode($result, true);
                 }
             } else {
+                echo 'CODE:' . $this->responseCode . PHP_EOL;
+                echo 'Exception: ' . self::$errorCodes[$this->responseCode] . PHP_EOL;
+                echo 'url: ' . $url . PHP_EOL;
                 throw new Exception(self::$errorCodes[$this->responseCode]);
             }
         }

@@ -17,12 +17,14 @@
         require_once 'static/Champions.php';
         require_once 'static/Spells.php';
         require_once 'static/Masteries.php';
+        require_once 'static/Maps.php';
         require_once 'riot/WrapperRiot.php';
 
         $oMySQL = new MySQL(DB_NAME, DB_USERNAME, DB_PASSWORD);
         $champions = new Champions($oMySQL);
         $spells = new Spells($oMySQL);
         $masteries = new Masteries($oMySQL);
+        $maps = new Maps($oMySQL);
         
         $summonners = array(
             0 => array('name' => 'Banhammer Live', 'id' => 25132718),
@@ -38,14 +40,14 @@
             10 => array('name' => 'Bloody Diana', 'id' => 23675633),
             11 => array('name' => 'Lud Ka Struja', 'id' => 25236798)
         );
-
+        
         // https://eune.api.pvp.net/api/lol/eune/v1.4/summoner/by-name/?api_key=b47507e5-3e3b-440f-b442-6c587f02fb14
         // https://eune.api.pvp.net/api/lol/eune/v1.4/summoner/by-name/FNC Rekkles?api_key=b47507e5-3e3b-440f-b442-6c587f02fb14
 
 //        $region = 'eune';
         if(isset($_GET['region']) && !empty($_GET['region']))
         {
-            $region = $_GET['region'];
+            $region = strtolower($_GET['region']);
         }
 //        $id = 1;
 //
@@ -64,25 +66,27 @@
         if(isset($_GET['name']) && !empty($_GET['name']))
         {
             $summonerName  = $_GET['name'];
-            $summonerId = $test->getSummonerId($_GET['name']);
-              //echo $summonerId;                
+            //$summonerId = $test->getSummonerId($_GET['name']);
+            //echo $summonerId;                
         }
         
         try {
-            $structure = getData($test, $summonerName, $champions, $spells, $masteries);
-            displayCurrentGameHeader();
+            $structure = getData($test, $summonerName, $champions, $spells, $masteries, $maps);
+            displayCurrentGameHeader($summonerName, $region, $structure);
             displayCurrentGame('home', $structure);
             displayCurrentGame('away', $structure);
             displayCurrentGameBottom();
         } catch (Exception $ex) {
-            displayError($summonerName, $ex->getMessage());            
+            displayError($summonerName, $ex->getTraceAsString());
         }
         
-        function getData(WrapperRiot $test, $summonerName, $champions, $spells, $masteries)
+        function getData(WrapperRiot $test, $summonerName, $champions, $spells, $masteries, $maps)
         {
             $teams = array('home', 'away');
             $summonerId = $test->getSummonerId($summonerName);
             $structure = $test->getCurrentGame($summonerId);
+            $map = $maps->getMapsById($structure['mapId']);
+            $structure['map'] = $map['map_name'];
                         
             for ($i = 0; $i < 5; $i++) {
                 foreach ($teams as $team) {
@@ -98,6 +102,7 @@
                     $structure[$team]['users'][$i]['matchStats']['avg_deaths'] = $matchStats['avg_deaths'];
                     
                     $currentUser = $test->getUserLeagueInfo($currentSummonerId);
+                    $structure['queue'] = $currentUser['queue'];
                     $structure[$team]['users'][$i]['tier'] = $currentUser['tier'];
                     $structure[$team]['users'][$i]['division'] = $currentUser['division'];
                     $structure[$team]['users'][$i]['leaguePoints'] = $currentUser['leaguePoints'];
@@ -114,16 +119,25 @@
                 }
             }
             
+            foreach ($teams as $team) {
+                for ($i = 0; $i < 3; $i++) {
+                    $bannedChampion = $champions->getChampionsById($structure[$team]['bannedChampions'][$i]['championId']);
+                    $structure[$team]['bannedChampions'][$i]['img'] = $bannedChampion['image_full'];
+                    $structure[$team]['bannedChampions'][$i]['name'] = $bannedChampion['name'];
+                }                                
+            }
+            
+            
             return $structure;
         }
         
-        function displayCurrentGameHeader()
+        function displayCurrentGameHeader($summonerName, $region, $structure)
         {
             ?>
         <div class="noxia-search-results" >
             <div class="noxia-search j-noxia-search">
                 <div class="header-bar">
-                    <h2>Overkill92 <small>Summoner's Rift, Ranked Solo 5v5 - EUNE</small></h2>
+                    <h2><?php echo $summonerName; ?> <small><?php echo $structure['map']; ?>, <?php echo $structure['queue']; ?> - <?php echo strtoupper($region); ?></small></h2>
                 </div>                    
             <?php
         }
@@ -235,7 +249,16 @@
 
                 </tbody>
             </table>
-
+            
+            <div class="team-footer">                
+                <div>
+                    <span>Banned Champions</span>
+                    <?php for ($i = 0; $i < 3; $i++) { ?>
+                    <img src="assets/images/champions/<?php echo $structure[$team]['bannedChampions'][$i]['img']; ?>" title="<?php echo 'Ban #' . $i . ' ' . $structure[$team]['bannedChampions'][$i]['name']; ?>" width="28px" height="28px"/>                    
+                    <?php } ?>                    
+                </div>
+            </div>
+            
         </div>                                        
 
 
