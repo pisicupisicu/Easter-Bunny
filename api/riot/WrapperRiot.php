@@ -88,7 +88,8 @@ class WrapperRiot
                     'championId'   => $participant['championId'],
                     'spell1Id'     => $participant['spell1Id'],
                     'spell2Id'     => $participant['spell2Id'],
-                    'masteries'    => $participant['masteries']
+                    'masteries'    => $participant['masteries'],
+                    'runes'        => $participant['runes']
                 );
             } else {
                 $structure['away']['users'][] = array(
@@ -96,7 +97,8 @@ class WrapperRiot
                     'championId'   => $participant['championId'],
                     'spell1Id'     => $participant['spell1Id'],
                     'spell2Id'     => $participant['spell2Id'],
-                    'masteries'    => $participant['masteries']
+                    'masteries'    => $participant['masteries'],
+                    'runes'        => $participant['runes']
                 );
             }
 

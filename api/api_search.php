@@ -18,6 +18,7 @@
         require_once 'static/Spells.php';
         require_once 'static/Masteries.php';
         require_once 'static/Maps.php';
+        require_once 'static/Runes.php';
         require_once 'riot/WrapperRiot.php';
 
         $oMySQL = new MySQL(DB_NAME, DB_USERNAME, DB_PASSWORD);
@@ -25,6 +26,7 @@
         $spells = new Spells($oMySQL);
         $masteries = new Masteries($oMySQL);
         $maps = new Maps($oMySQL);
+        $runes = new Runes($oMySQL);
         
         $summonners = array(
             0 => array('name' => 'Banhammer Live', 'id' => 25132718),
@@ -71,7 +73,7 @@
         }
         
         try {
-            $structure = getData($test, $summonerName, $champions, $spells, $masteries, $maps);
+            $structure = getData($test, $summonerName, $champions, $spells, $masteries, $maps, $runes);
             displayCurrentGameHeader($summonerName, $region, $structure);
             displayCurrentGame('home', $structure);
             displayCurrentGame('away', $structure);
@@ -80,7 +82,7 @@
             displayError($summonerName, $ex->getTraceAsString());
         }
         
-        function getData(WrapperRiot $test, $summonerName, $champions, $spells, $masteries, $maps)
+        function getData(WrapperRiot $test, $summonerName, $champions, $spells, $masteries, $maps, $runes)
         {
             $teams = array('home', 'away');
             $summonerId = $test->getSummonerId($summonerName);
@@ -107,10 +109,18 @@
                     $structure[$team]['users'][$i]['division'] = $currentUser['division'];
                     $structure[$team]['users'][$i]['leaguePoints'] = $currentUser['leaguePoints'];
                     
-                    $masteriesCurrentUser = $masteries->computeMasteries($structure[$team]['users'][$i]['masteries']);                   
+                    $masteriesCurrentUser = $masteries->computeMasteries($structure[$team]['users'][$i]['masteries']);
                     $structure[$team]['users'][$i]['Offense'] = $masteriesCurrentUser['Offense'];
                     $structure[$team]['users'][$i]['Defense'] = $masteriesCurrentUser['Defense'];
                     $structure[$team]['users'][$i]['Utility'] = $masteriesCurrentUser['Utility'];
+                    
+                    $structure[$team]['users'][$i]['runes_description'] = '';
+                    
+                    foreach ($structure[$team]['users'][$i]['runes'] as $rune) {
+                        $tempRune = $runes->getRunesById($rune['runeId']);
+                        // $structure[$team]['users'][$i]['runes_description'] .= $tempRune['description'] .'-'. $tempRune['rune_id']. PHP_EOL;
+                        $structure[$team]['users'][$i]['runes_description'] .= $tempRune['description'] . PHP_EOL;
+                    }                                        
                     
                     $stats = $test->getStats($currentSummonerId);
                     $structure[$team]['users'][$i]['unranked_wins'] = $stats['unranked_wins'];
@@ -205,7 +215,7 @@
 
 
                     <td class="normal-wins">
-                        <span title="&lt;h2&gt;Summoner Level&lt;/h2&gt;Level 30" class="normal-wins-span tip"><?php echo $structure[$team]['users'][$i]['unranked_wins']; ?></span>
+                        <span title="&lt;h2&gt;Summoner Level&lt;/h2&gt;Level 30" class="normal-wins-span tip"><?php echo htmlentities($structure[$team]['users'][$i]['unranked_wins']); ?></span>
                     </td>
 
                     <td class="ranked-wins-losses">
@@ -221,7 +231,7 @@
 
 
                     <td class="runes">
-                        <span class="tip">Runes<div class="tooltip-html"><div><h2>Runes</h2>+19.8% attack speed<br>+1.44 magic resist per level (25.92 at level 18)<br>+11.97 health per level (215.46 at level 18)<br>+8.52 armor</div></div></span>
+                        <span class="tip" title="<?php echo $structure[$team]['users'][$i]['runes_description']; ?>">Runes<div class="tooltip-html"><div><h2>Runes</h2>+19.8% attack speed<br>+1.44 magic resist per level (25.92 at level 18)<br>+11.97 health per level (215.46 at level 18)<br>+8.52 armor</div></div></span>
                     </td> 
 
                     <td class="masteries j-masteries-modal-link">
