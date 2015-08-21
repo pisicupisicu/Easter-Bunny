@@ -414,9 +414,9 @@ class Riotapi
                     $result = json_decode($result, true);
                 }
             } else {
-                echo 'CODE:' . $this->responseCode . PHP_EOL;
-                echo 'Exception: ' . self::$errorCodes[$this->responseCode] . PHP_EOL;
-                echo 'url: ' . $url . PHP_EOL;
+               // echo 'CODE:' . $this->responseCode . PHP_EOL;
+               // echo 'Exception: ' . self::$errorCodes[$this->responseCode] . PHP_EOL;
+               // echo 'url: ' . $url . PHP_EOL;
                 throw new Exception(self::$errorCodes[$this->responseCode]);
             }
         }
