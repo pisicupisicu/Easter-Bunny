@@ -46,7 +46,7 @@
         // https://eune.api.pvp.net/api/lol/eune/v1.4/summoner/by-name/?api_key=b47507e5-3e3b-440f-b442-6c587f02fb14
         // https://eune.api.pvp.net/api/lol/eune/v1.4/summoner/by-name/FNC Rekkles?api_key=b47507e5-3e3b-440f-b442-6c587f02fb14
 
-//        $region = 'eune';
+        $region = $summonerName = '';
         if(isset($_GET['region']) && !empty($_GET['region']))
         {
             $region = strtolower($_GET['region']);
