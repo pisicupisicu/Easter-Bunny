@@ -53,7 +53,7 @@ class Riotapi
     const API_URL_STATIC_RUNES = 'https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/rune?runeListData=all';
     
 
-    const API_KEY = 'ad2b3635-ad88-49cf-b23f-cc71f7272188'; //'457c4612-4e79-47cc-8195-383ddc7eb69d'; //b47507e5-3e3b-440f-b442-6c587f02fb14
+    const API_KEY = ''; // insert RIOT API key
 
     // Rate limit for 10 minutes
     const LONG_LIMIT_INTERVAL = 600;
@@ -79,7 +79,8 @@ class Riotapi
         404 => 'NOT_FOUND',
         429 => 'RATE_LIMIT_EXCEEDED',
         500 => 'SERVER_ERROR',
-        503 => 'UNAVAILABLE'
+        503 => 'UNAVAILABLE',
+        403 => 'FORBIDDEN'
     );
 
     // Whether or not you want returned queries to be JSON or decoded JSON.
